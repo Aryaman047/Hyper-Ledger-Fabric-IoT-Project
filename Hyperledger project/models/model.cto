@@ -1,0 +1,170 @@
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+namespace org.xyz.iotmlchain
+
+
+asset Software identified by did  {
+  
+  o String did
+  o OWNER owner
+  o STATE state
+  o QUANTITYSTATE quantitystate
+  o String quantity
+  o REQUESTSTATUS request
+  
+  }
+
+
+// abstract participant by which all other participant resources are extended.
+
+abstract participant Node identified by nid {
+
+  o String nid
+  o String name
+
+ }
+  
+ participant DataSc extends Node{
+  }
+  
+ participant MLtrainer extends Node{
+  }
+  
+ participant iotExporter extends Node{
+  }
+  
+ participant Iot1 extends Node{
+  }
+ 
+
+// enumeration to define different owners of the software in different stages. 
+
+  enum OWNER{
+   o DATASC
+   o MLTRAINER
+   o IOTEXPORTER
+   o IOT1
+ }
+
+// enumeration to define different states of software in different stages of its supply chain.
+
+  enum STATE{
+   o MINING
+   o MINED
+   o GETTING_SEPARATED
+   o SEPARATED_INTO_BUNCH_OF_TEN
+   o EXPORT_PROCESS
+   o FINAL_PROCESS_RETAILER
+   o UPDATE_APPLIED
+   
+  
+  }
+
+// enumeration to define status of request, request approval and the acknowledgement of the software  
+// delivery.
+
+  enum REQUESTSTATUS{
+   o NA
+   o EXPORTER_REQUEST_PENDING
+   o EXPORTER_REQUEST_APPROVED
+   o IN_DELIVERY_EXPORTER
+   o DELIVERED_EXPORTER
+   o RETAILER_REQUEST_PENDING
+   o RETAILER_REQUEST_APPROVED
+   o IN_DELIVERY_RETAILER
+   o RECEIVED_RETAILER
+  }
+
+// differnet state of the software quantity.
+  enum QUANTITYSTATE{
+   o RAW
+   o KNOWN
+  }
+
+
+// transaction after the software has been mined.
+
+  transaction mined {
+   --> DataSc datasc
+   --> Software software
+  
+  }
+
+// transaction for sending the raw software for separation.
+
+  transaction sent_for_separation{
+   --> DataSc datasc
+   --> Software software
+   --> MLtrainer mltrainer
+  }
+
+// transaction after the separation has been completed.
+
+  transaction separation_complete{
+   --> Software software
+   --> MLtrainer mltrainer
+  }
+
+// abstract transaction structure for request by the exporter.
+
+ abstract transaction TExport{
+   --> Software software
+   --> MLtrainer mltrainer
+   --> iotExporter exporter
+  }
+  
+  transaction request_by_exporter extends TExport{
+  }
+
+  transaction request_approval_exporter extends TExport{
+  }
+
+  transaction in_delivery_exporter extends TExport{
+  }
+
+  transaction received_by_exporter extends TExport{ 
+  }
+
+
+// abstract transaction structure for request by the retailer.
+
+abstract transaction TRetail{
+    --> Software software
+    --> iotExporter exporter
+    --> Iot1 iot
+  }
+
+  transaction request_by_retailer extends TRetail{
+  }
+  
+  transaction request_approval_retailer extends TRetail{
+  }
+
+  transaction in_delivery_retailer extends TRetail{
+  }
+
+  transaction received_by_retailer extends TRetail{
+  }
+
+  transaction available_for_sale{
+    --> Software software
+    --> Iot1 iot1
+  }
+
+// Initial transacion for setting up all the resources in the network.
+
+transaction initialize_demo_resource{
+}
